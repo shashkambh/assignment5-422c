@@ -45,93 +45,106 @@ import java.net.URL;
  */
 public class Main extends Application{
     private static String myPackage;    // package of Critter file.  Critter cannot be in default pkg.
-	private static boolean running = false;
-	private static final long RUNWAIT = 1000;
+    private static boolean running = false;
+    private static final long RUNWAIT = 1000;
 
-	public static GridPane world;
-	public static Text out;
+    public static GridPane world;
+    public static Text out;
 
     // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
     static {
         myPackage = Critter.class.getPackage().toString().split(" ")[1];
     }
 
-	private static TextField numericTextField(){
-		TextField textField = new TextField();
-		textField.textProperty().addListener( (observable, oldValue, newValue) ->{
-			if(!newValue.matches("\\d*")){
-				textField.setText(newValue.replaceAll("[^\\d]", ""));
-			}
-		});
+    public static void setOutputText(String outText){
+        out.setText(outText);
+    }
 
-		return textField;
-	}
+    private static TextField numericTextField(){
+        TextField textField = new TextField();
+        textField.textProperty().addListener( (observable, oldValue, newValue) ->{
+            if(!newValue.matches("\\d*")){
+                textField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
 
-	private static List<String> getCritterList(){
-		String name = Critter.class.getSimpleName();
-		name += ".class";
+        return textField;
+    }
 
-		URL file = Critter.class.getResource(name);
-		String dir= file.getPath();
-		dir = dir.substring(0, dir.lastIndexOf("/"));
+    private static List<String> getCritterList(){
+        String name = Critter.class.getSimpleName();
+        name += ".class";
 
-		File current = new File(dir);
+        URL file = Critter.class.getResource(name);
+        String dir= file.getPath();
+        dir = dir.substring(0, dir.lastIndexOf("/"));
 
-		List<String> critters = new ArrayList<>();
-		File[] list = current.listFiles();
-		
-		for(File e : list){
-			String className = e.getName();
-			if(className.endsWith(".java")){
-				className = className.substring(0, className.length() - 5);
+        File current = new File(dir);
 
-				try{
-					Class<? extends Critter> critterClass = Class.forName(myPackage + "." + className).asSubclass(Critter.class);
-					if(!Modifier.isAbstract(critterClass.getModifiers())){
-						critters.add(className);
-					}
-					
-				} catch(Throwable err){
-					
-				}
-			}
-		}
+        List<String> critters = new ArrayList<>();
+        File[] list = current.listFiles();
+        
+        for(File e : list){
+            String className = e.getName();
+            if(className.endsWith(".java")){
+                className = className.substring(0, className.length() - 5);
 
-		Collections.sort(critters);
-		
-		return critters;
+                try{
+                    Class<? extends Critter> critterClass = Class.forName(myPackage + "." + className).asSubclass(Critter.class);
+                    if(!Modifier.isAbstract(critterClass.getModifiers())){
+                        critters.add(className);
+                    }
+                    
+                } catch(Throwable err){
+                    
+                }
+            }
+        }
 
-	}
+        Collections.sort(critters);
+        
+        return critters;
+
+    }
 
     private void addButtons(GridPane grid){
-		List<String> critters = getCritterList();
-		
+        List<String> critters = getCritterList();
+        
         // seed ui elements
-        TextField seedTxt = numericTextField();
-        seedTxt.setPromptText("seed number");
-        Button seedBtn = new Button("seed");
+        TextField seedText = numericTextField();
+        seedText.setPromptText("seed number");
+        Button seedButton = new Button("seed");
         EventHandler<ActionEvent> seedAction = actionEvent ->{
             int seed = 0;
             try{
-                seed = Integer.parseInt(seedTxt.getText());
-                Critter.setSeed(seed);
-            } catch (NumberFormatException e) {
-                errorProcessing();
-            }
-            seedTxt.clear();
+                seed = Integer.parseInt(seedText.getText());
+            } catch (NumberFormatException e) { }
+			Critter.setSeed(seed);
+            seedText.clear();
         };
-        seedBtn.setOnAction(seedAction);
-        seedTxt.setOnAction(seedAction);
-        grid.add(seedTxt, 0, 0);
-        grid.add(seedBtn, 1, 0);
+        seedButton.setOnAction(seedAction);
+        seedText.setOnAction(seedAction);
+        grid.add(seedText, 0, 0);
+        grid.add(seedButton, 1, 0);
 
         // step ui elements
         Button stepButton = new Button("step");
         TextField stepText = numericTextField();
         stepText.setPromptText("number of steps");
         EventHandler<ActionEvent> stepAction = actionEvent ->{
-            Critter.worldTimeStep();
-            Critter.displayWorld();
+			int steps;
+            try{
+                steps = Integer.parseInt(stepText.getText());
+            } catch(NumberFormatException e){
+				steps = 1;
+            }
+
+			for(int i = 0; i < steps; i++){
+				Critter.worldTimeStep();
+			}
+
+			Critter.displayWorld();
+			stepText.clear();
         };
         stepButton.setOnAction(stepAction);
         stepText.setOnAction(stepAction);
@@ -139,19 +152,20 @@ public class Main extends Application{
         grid.add(stepButton, 1, 1);
 
         // make ui elements
-		ComboBox<String> makeTxt = new ComboBox<>();
+        ComboBox<String> makeText = new ComboBox<>();
         TextField makeNumber = numericTextField();
-        Button makeBtn = new Button("make");
+        Button makeButton = new Button("make");
 
-		HBox makebox = new HBox();
-		makebox.getChildren().addAll(makeTxt, makeNumber);
+        HBox makebox = new HBox();
+        makebox.getChildren().addAll(makeText, makeNumber);
 
-		for(String e : critters){
-			makeTxt.getItems().add(e);
-		}
+        for(String e : critters){
+            makeText.getItems().add(e);
+        }
 
         makeNumber.setPromptText("number");
-		makeNumber.setPrefWidth(80);
+        makeNumber.setPrefWidth(80);
+		makeText.setValue("Algae");
         EventHandler<ActionEvent> makeAction = actionEvent -> {
             int num;
             try{
@@ -163,35 +177,37 @@ public class Main extends Application{
 
             try{
                 for(int i = 0; i < num; i++){
-                    Critter.makeCritter(makeTxt.getValue());
+                    Critter.makeCritter(makeText.getValue());
                 }
             } catch(InvalidCritterException e){
                 errorProcessing();
             }
-			Critter.displayWorld();
-			makeNumber.clear();
+            Critter.displayWorld();
+            makeNumber.clear();
         };
-        makeBtn.setOnAction(makeAction);
+        makeButton.setOnAction(makeAction);
         makeNumber.setOnAction(makeAction);
         grid.add(makebox, 0, 3);
-        grid.add(makeBtn, 1, 3);
+        grid.add(makeButton, 1, 3);
 
         // stats ui elements
-        Button statsBtn = new Button("stats");
-        ComboBox<String> statsTxt = new ComboBox<>();
+        Button statsButton = new Button("stats");
+        ComboBox<String> statsText = new ComboBox<>();
 
-		for(String e : critters){
-			statsTxt.getItems().add(e);
-		}
+        for(String e : critters){
+            statsText.getItems().add(e);
+        }
+
+		statsText.setValue("Algae");
 
         EventHandler<ActionEvent> statsEvent = actionEvent -> {
             try{
-                java.util.List<Critter> statList = Critter.getInstances(statsTxt.getValue());
+                java.util.List<Critter> statList = Critter.getInstances(statsText.getValue());
 
                 Class<?>[] params = {List.class};
 
 
-                Class<? extends Critter> stats = Class.forName(myPackage + "." + statsTxt.getValue())
+                Class<? extends Critter> stats = Class.forName(myPackage + "." + statsText.getValue())
                         .asSubclass(Critter.class);
 
                 stats.getMethod("runStats", params).invoke(null, statList);
@@ -199,68 +215,68 @@ public class Main extends Application{
                 errorProcessing();
             }
         };
-        statsBtn.setOnAction(statsEvent);
-        grid.add(statsTxt, 0, 4);
-        grid.add(statsBtn, 1, 4);
+        statsButton.setOnAction(statsEvent);
+        grid.add(statsText, 0, 4);
+        grid.add(statsButton, 1, 4);
 
         // quit ui element
-        Button quitBtn = new Button("quit");
-        quitBtn.setOnAction(actionEvent ->{
-            Stage stage = (Stage) quitBtn.getScene().getWindow();
+        Button quitButton = new Button("quit");
+        quitButton.setOnAction(actionEvent ->{
+            Stage stage = (Stage) quitButton.getScene().getWindow();
             stage.close();
         });
-        grid.add(quitBtn, 0, 6);
+        grid.add(quitButton, 0, 6);
 
 
 
-		List<Node> uiElements = new ArrayList<>();
-		uiElements.add(quitBtn);
-		uiElements.add(statsBtn);
-		uiElements.add(stepButton);
-		uiElements.add(stepText);
-		uiElements.add(statsTxt);
-		uiElements.add(seedBtn);
-		uiElements.add(seedTxt);
-		uiElements.add(makeTxt);
-		uiElements.add(makeBtn);
-		uiElements.add(makeNumber);
+        List<Node> uiElements = new ArrayList<>();
+        uiElements.add(quitButton);
+        uiElements.add(statsButton);
+        uiElements.add(stepButton);
+        uiElements.add(stepText);
+        uiElements.add(statsText);
+        uiElements.add(seedButton);
+        uiElements.add(seedText);
+        uiElements.add(makeText);
+        uiElements.add(makeButton);
+        uiElements.add(makeNumber);
 
-		//run ui elements
-		Button runStart = new Button("run");
-		Button runEnd = new Button("stop");
-		Slider runSteps = new Slider(1, 30, 1);
-		uiElements.add(runStart);
-		
-		runStart.setOnAction(actionEvent ->{
-			for(Node e : uiElements){
-				e.setDisable(true);
-			}
-			int stepCount = (int) Math.round(runSteps.getValue());
-			running = true;
-			Thread runner = new Thread(() ->{
-				while(running){
-					for(int i = 0; i < stepCount; i++){
-						Critter.worldTimeStep();
-					}
-					Critter.displayWorld();
-					try{
-						Thread.sleep(RUNWAIT);
-					} catch(InterruptedException e){} 
-				}
-			});
-			runner.setDaemon(true);
-			runner.start();
-		});
+        //run ui elements
+        Button runStart = new Button("run");
+        Button runEnd = new Button("stop");
+        Slider runSteps = new Slider(1, 30, 1);
+        uiElements.add(runStart);
+        
+        runStart.setOnAction(actionEvent ->{
+            for(Node e : uiElements){
+                e.setDisable(true);
+            }
+            int stepCount = (int) Math.round(runSteps.getValue());
+            running = true;
+            Thread runner = new Thread(() ->{
+                while(running){
+                    for(int i = 0; i < stepCount; i++){
+                        Critter.worldTimeStep();
+                    }
+                    Critter.displayWorld();
+                    try{
+                        Thread.sleep(RUNWAIT);
+                    } catch(InterruptedException e){} 
+                }
+            });
+            runner.setDaemon(true);
+            runner.start();
+        });
 
-		runEnd.setOnAction(actionEvent ->{
-			running = false;
-			for(Node e : uiElements){
-				e.setDisable(false);
-			}
-		});
-		grid.add(runSteps, 0, 2);
-		grid.add(runStart, 1, 2);
-		grid.add(runEnd, 2, 2);
+        runEnd.setOnAction(actionEvent ->{
+            running = false;
+            for(Node e : uiElements){
+                e.setDisable(false);
+            }
+        });
+        grid.add(runSteps, 0, 2);
+        grid.add(runStart, 1, 2);
+        grid.add(runEnd, 2, 2);
     }
 
     @Override
@@ -268,29 +284,27 @@ public class Main extends Application{
         primaryStage.setTitle("Critters");
 
         GridPane input = new GridPane();
-		world = new GridPane();
-		out = new Text();
+        world = new GridPane();
+        out = new Text();
         input.setPadding(new Insets(10, 10, 10, 10));
         input.setHgap(5);
         input.setVgap(5);
 
         addButtons(input);
 
-		BorderPane mainScreen = new BorderPane();
+        BorderPane mainScreen = new BorderPane();
 
-		mainScreen.setLeft(input);
-		mainScreen.setCenter(world);
-		mainScreen.setBottom(out);
+        mainScreen.setLeft(input);
+        mainScreen.setCenter(world);
+        mainScreen.setBottom(out);
         mainScreen.setPadding(new Insets(10, 10, 10, 10));
 
         primaryStage.setScene(new Scene(mainScreen, 1000, 1000));
         primaryStage.show();
-
-		errorProcessing();
     }
 
     private static void errorProcessing(){
-		out.setText("Error processing previous command");
+        out.setText("Error processing previous command");
     }
 
     public static void main(String[] args){

@@ -79,17 +79,19 @@ public class Critter4 extends Critter {
      * @param cows A list of all cows in the population right now
      */
     public static void runStats(java.util.List<Critter> cows){
-        System.out.printf("There are %d Cows.\n", numCows);
+		String outText = "There are " + numCows + " Cows.\n"; 
         TreeSet<Integer> patterns = new TreeSet<>();
         for(Critter c : cows) {
             if(!patterns.contains(((Critter4) c).patternSize)) {
                 patterns.add(((Critter4) c).patternSize);
             }
         }
-        System.out.printf("There are %d different grazing patterns.\n", patterns.size());
+        outText += ("There are " + patterns.size() + " different grazing patterns.\n");
         for(int p : patterns) {
-            System.out.printf("%d by %d\n", p, p);
+			outText += p + " by " + p + "\n";
         }
+
+		Main.setOutputText(outText);
     }
 
 }

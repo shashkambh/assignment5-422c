@@ -111,14 +111,17 @@ public class Critter2 extends Critter{
             if(((Critter2) m).isTired) tired++;
             else active++;
         }
-        System.out.print("Most active Moms by ID: ");
-        for(Critter2 m: activeMoms) {
-            System.out.print(m.momId + " ");
-        }
-        System.out.println();
 
-        System.out.printf("There are %d total moms.\n", numMoms);
-        System.out.printf("%d of them are active, and %d of them are resting.\n", active, tired);
+		String outText = "Most active Moms by ID: ";
+        for(Critter2 m: activeMoms) {
+            outText += (m.momId + " ");
+        }
+		outText += "\n";
+
+		outText += "There are " + numMoms + " total moms.\n";
+		outText += active + " of them are active, and " + tired + " of them are resting.";
+
+		Main.setOutputText(outText);
     }
     
 

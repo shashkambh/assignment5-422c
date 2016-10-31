@@ -120,10 +120,12 @@ public class Critter3 extends Critter{
             else pattern3++;
         }
 
-        System.out.println(totalSent + " have been sent to attain victory.");
-        System.out.println(dead + " have died in service to our great lord Boros.");
-        if(numAbducted > 0) System.out.println("Our warriors have procured specimens: " + numAbducted + " of them.");
-        System.out.println("Holding patterns: 1->" + pattern1 + " 2->" + pattern2 + " 3->" + pattern3);
+		String outText = (totalSent + " have been sent to attain victory." + "\n");
+        outText += (dead + " have died in service to our great lord Boros." + "\n");
+        if(numAbducted > 0) outText += ("Our warriors have procured specimens: " + numAbducted + " of them." + "\n");
+        outText += ("Holding patterns: 1->" + pattern1 + " 2->" + pattern2 + " 3->" + pattern3);
+
+		Main.setOutputText(outText);
     }
     
 

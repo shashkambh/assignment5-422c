@@ -121,24 +121,26 @@ public class Critter1 extends Critter{
 			}
         }
 
-        System.out.println("There have been " + numCats + " cats in total.");
-        System.out.println("Of those, " + cats.size() + " cats are currently alive.");
-        System.out.println(cats.size() - numNoFights + " have survived a fight.");
+        String outText = ("There have been " + numCats + " cats in total." +"\n");
+        outText += ("Of those, " + cats.size() + " cats are currently alive." + "\n");
+        outText += (cats.size() - numNoFights + " have survived a fight." + "\n");
 		if(maxFights != 0){
-			System.out.println("Cat number " + bestFighter + " is the best fighter.");
+			outText += ("Cat number " + bestFighter + " is the best fighter." + "\n");
 		}
 
 		if(elders.size() == 1){
-			System.out.println("Cat number " + elders.get(0) + " rules the cats, having lived for " + maxTurns + " step(s).");
+			outText += ("Cat number " + elders.get(0) + " rules the cats, having lived for " + maxTurns + " step(s).");
 		} else if(elders.size() > 1){
-			System.out.print("Cats number ");
+			outText += ("Cats number ");
 
 			for(int i = 0; i < elders.size() - 1; i++){
-				System.out.print(elders.get(i) + " ");
+				outText += (elders.get(i) + " ");
 			}
 
-			System.out.println("and " + elders.get(elders.size()) + " rule the cats, having lived for " + maxTurns + " step(s).");
+			outText += ("and " + elders.get(elders.size()) + " rule the cats, having lived for " + maxTurns + " step(s).");
 		}
+
+		Main.setOutputText(outText);
 
     }
 

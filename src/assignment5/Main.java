@@ -1,5 +1,5 @@
 /* CRITTERS Main.java
- * EE422C Project 4 submission by
+ * EE422C Project 5 submission by
  * Shashank Kambhampati
  * skk834
  * 16445
@@ -10,8 +10,32 @@
  * Fall 2016
  */
 package assignment5; // cannot be in default package
+import java.io.IOException;
 import java.util.*;
-import java.io.*;
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.Node;
+import javafx.scene.text.Text;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.stage.Stage;
+import java.util.ArrayList;
+import java.util.List;
+import java.lang.reflect.Modifier;
+import java.io.File;
+import java.util.Collections;
+import java.net.URL;
 
 
 /*
@@ -19,178 +43,258 @@ import java.io.*;
  * input file is optional.  If input file is specified, the word 'test' is optional.
  * May not use 'test' argument without specifying input file.
  */
-public class Main {
-
-    private static final String PROMPT = "critters>";
-    static Scanner kb;  // scanner connected to keyboard input, or input file
-    private static String inputFile;    // input file, used instead of keyboard input if specified
-    static ByteArrayOutputStream testOutputString;  // if test specified, holds all console output
+public class Main extends Application{
     private static String myPackage;    // package of Critter file.  Critter cannot be in default pkg.
-    private static boolean DEBUG = false; // Use it or not, as you wish!
-    static PrintStream old = System.out;    // if you want to restore output to console
+	private static boolean running = false;
+	private static final long RUNWAIT = 1000;
 
+	public static GridPane world;
+	public static Text out;
 
     // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
     static {
         myPackage = Critter.class.getPackage().toString().split(" ")[1];
     }
 
-    /**
-     * Main method.
-     * @param args args can be empty.  If not empty, provide two parameters -- the first is a file name, 
-     * and the second is test (for test output, where all output to be directed to a String), or nothing.
-     */
-    public static void main(String[] args) { 
-        if (args.length != 0) {
-            try {
-                inputFile = args[0];
-                kb = new Scanner(new File(inputFile));          
-            } catch (FileNotFoundException e) {
-                System.out.println("USAGE: java Main OR java Main <input file> <test output>");
-                e.printStackTrace();
-            } catch (NullPointerException e) {
-                System.out.println("USAGE: java Main OR java Main <input file>  <test output>");
+	private static TextField numericTextField(){
+		TextField textField = new TextField();
+		textField.textProperty().addListener( (observable, oldValue, newValue) ->{
+			if(!newValue.matches("\\d*")){
+				textField.setText(newValue.replaceAll("[^\\d]", ""));
+			}
+		});
+
+		return textField;
+	}
+
+	private static List<String> getCritterList(){
+		String name = Critter.class.getSimpleName();
+		name += ".class";
+
+		URL file = Critter.class.getResource(name);
+		String dir= file.getPath();
+		dir = dir.substring(0, dir.lastIndexOf("/"));
+
+		File current = new File(dir);
+
+		List<String> critters = new ArrayList<>();
+		File[] list = current.listFiles();
+		
+		for(File e : list){
+			String className = e.getName();
+			if(className.endsWith(".java")){
+				className = className.substring(0, className.length() - 5);
+
+				try{
+					Class<? extends Critter> critterClass = Class.forName(myPackage + "." + className).asSubclass(Critter.class);
+					if(!Modifier.isAbstract(critterClass.getModifiers())){
+						critters.add(className);
+					}
+					
+				} catch(Throwable err){
+					
+				}
+			}
+		}
+
+		Collections.sort(critters);
+		
+		return critters;
+
+	}
+
+    private void addButtons(GridPane grid){
+		List<String> critters = getCritterList();
+		
+        // seed ui elements
+        TextField seedTxt = numericTextField();
+        seedTxt.setPromptText("seed number");
+        Button seedBtn = new Button("seed");
+        EventHandler<ActionEvent> seedAction = actionEvent ->{
+            int seed = 0;
+            try{
+                seed = Integer.parseInt(seedTxt.getText());
+                Critter.setSeed(seed);
+            } catch (NumberFormatException e) {
+                errorProcessing();
             }
-            if (args.length >= 2) {
-                if (args[1].equals("test")) { // if the word "test" is the second argument to java
-                    // Create a stream to hold the output
-                    testOutputString = new ByteArrayOutputStream();
-                    PrintStream ps = new PrintStream(testOutputString);
-                    // Save the old System.out.
-                    old = System.out;
-                    // Tell Java to use the special stream; all console output will be redirected here from now
-                    System.setOut(ps);
+            seedTxt.clear();
+        };
+        seedBtn.setOnAction(seedAction);
+        seedTxt.setOnAction(seedAction);
+        grid.add(seedTxt, 0, 0);
+        grid.add(seedBtn, 1, 0);
+
+        // step ui elements
+        Button stepButton = new Button("step");
+        TextField stepText = numericTextField();
+        stepText.setPromptText("number of steps");
+        EventHandler<ActionEvent> stepAction = actionEvent ->{
+            Critter.worldTimeStep();
+            Critter.displayWorld();
+        };
+        stepButton.setOnAction(stepAction);
+        stepText.setOnAction(stepAction);
+        grid.add(stepText, 0, 1);
+        grid.add(stepButton, 1, 1);
+
+        // make ui elements
+		ComboBox<String> makeTxt = new ComboBox<>();
+        TextField makeNumber = numericTextField();
+        Button makeBtn = new Button("make");
+
+		HBox makebox = new HBox();
+		makebox.getChildren().addAll(makeTxt, makeNumber);
+
+		for(String e : critters){
+			makeTxt.getItems().add(e);
+		}
+
+        makeNumber.setPromptText("number");
+		makeNumber.setPrefWidth(80);
+        EventHandler<ActionEvent> makeAction = actionEvent -> {
+            int num;
+            try{
+                num = Integer.parseInt(makeNumber.getText());
+
+            } catch (NumberFormatException e){
+                num = 1;
+            }
+
+            try{
+                for(int i = 0; i < num; i++){
+                    Critter.makeCritter(makeTxt.getValue());
                 }
+            } catch(InvalidCritterException e){
+                errorProcessing();
             }
-        } else { // if no arguments to main
-            kb = new Scanner(System.in); // use keyboard and console
-        }
+			Critter.displayWorld();
+			makeNumber.clear();
+        };
+        makeBtn.setOnAction(makeAction);
+        makeNumber.setOnAction(makeAction);
+        grid.add(makebox, 0, 3);
+        grid.add(makeBtn, 1, 3);
 
-        /* Do not alter the code above for your submission. */
-        /* Write your code below. */
+        // stats ui elements
+        Button statsBtn = new Button("stats");
+        ComboBox<String> statsTxt = new ComboBox<>();
 
-        boolean done = false;
-        
-        while(!done){
-            System.out.print(PROMPT);
+		for(String e : critters){
+			statsTxt.getItems().add(e);
+		}
+
+        EventHandler<ActionEvent> statsEvent = actionEvent -> {
+            try{
+                java.util.List<Critter> statList = Critter.getInstances(statsTxt.getValue());
+
+                Class<?>[] params = {List.class};
 
 
-            String in = kb.nextLine();
+                Class<? extends Critter> stats = Class.forName(myPackage + "." + statsTxt.getValue())
+                        .asSubclass(Critter.class);
 
-            String[] inputArgs = in.split("\\s+");
-            boolean invalid = false;
-
-            switch(inputArgs[0]){
-                case "quit":
-                    if(inputArgs.length == 1){
-                        done = true;
-                    } else {
-                        invalid = true;
-                    }
-                    break;
-
-                case "show":
-                    if(inputArgs.length == 1){
-                        Critter.displayWorld();
-                    } else {
-                        invalid = true;
-                    }
-                    break;
-
-                case "step":
-                    int numSteps = 0;
-                    if(inputArgs.length == 1){
-                        numSteps = 1;
-
-                    } else if(inputArgs.length == 2){
-                        try{
-                            numSteps = Integer.parseInt(inputArgs[1]);
-                        } catch(NumberFormatException e){
-                            invalid = true;
-                        }
-
-                    } else {
-                        invalid = true;
-                    }
-
-                    if(!invalid){
-                        for(int i =0; i < numSteps; i++){
-                            Critter.worldTimeStep();
-                        }
-                    }
-                    break;
-
-                case "seed":
-                    if(inputArgs.length == 2){
-                        try{
-                            int seed = Integer.parseInt(inputArgs[1]);
-                            Critter.setSeed(seed);
-                        } catch(NumberFormatException e){
-                            invalid = true;
-                        }
-                    } else {
-                        invalid = true;
-                    }
-                    break;
-                    
-                case "make":
-                    int numToMake = 0;
-                    if(inputArgs.length == 3){
-                        try{
-                            numToMake = Integer.parseInt(inputArgs[2]);
-                        } catch(NumberFormatException e){
-                            invalid = true;
-                        }
-                    } else if(inputArgs.length == 2){
-                        numToMake = 1;
-                    } else {
-                        invalid = true;
-                    }
-
-                    if(!invalid){
-                        try{
-                            for(int i = 0; i < numToMake; i++){
-                                Critter.makeCritter(inputArgs[1]);
-                            }
-                        } catch(InvalidCritterException e){
-                            invalid = true;
-                        }
-                    }
-                    break;
-
-                case "stats":
-                    if(inputArgs.length == 2){
-                        try{
-                            java.util.List<Critter> statList = Critter.getInstances(inputArgs[1]);
-							
-							Class<?>[] params = {List.class};
-
-							
-							Class<? extends Critter> stats = Class.forName(myPackage + "." + inputArgs[1])
-								.asSubclass(Critter.class);
-							
-                            stats.getMethod("runStats", params).invoke(null, statList);
-                        } catch(Exception e){
-                            invalid = true;
-                        }
-                    } else {
-                        invalid = true;
-                    }
-                    break;
-                
-                default:
-                    System.out.println("invalid command: " + in);
+                stats.getMethod("runStats", params).invoke(null, statList);
+            } catch(Exception e){
+                errorProcessing();
             }
+        };
+        statsBtn.setOnAction(statsEvent);
+        grid.add(statsTxt, 0, 4);
+        grid.add(statsBtn, 1, 4);
+
+        // quit ui element
+        Button quitBtn = new Button("quit");
+        quitBtn.setOnAction(actionEvent ->{
+            Stage stage = (Stage) quitBtn.getScene().getWindow();
+            stage.close();
+        });
+        grid.add(quitBtn, 0, 6);
 
 
-            if(invalid){
-                System.out.println("error processing: " + in);
-            }
-        }
-        
-        /* Write your code above */
-        System.out.flush();
 
+		List<Node> uiElements = new ArrayList<>();
+		uiElements.add(quitBtn);
+		uiElements.add(statsBtn);
+		uiElements.add(stepButton);
+		uiElements.add(stepText);
+		uiElements.add(statsTxt);
+		uiElements.add(seedBtn);
+		uiElements.add(seedTxt);
+		uiElements.add(makeTxt);
+		uiElements.add(makeBtn);
+		uiElements.add(makeNumber);
+
+		//run ui elements
+		Button runStart = new Button("run");
+		Button runEnd = new Button("stop");
+		Slider runSteps = new Slider(1, 30, 1);
+		uiElements.add(runStart);
+		
+		runStart.setOnAction(actionEvent ->{
+			for(Node e : uiElements){
+				e.setDisable(true);
+			}
+			int stepCount = (int) Math.round(runSteps.getValue());
+			running = true;
+			Thread runner = new Thread(() ->{
+				while(running){
+					for(int i = 0; i < stepCount; i++){
+						Critter.worldTimeStep();
+					}
+					Critter.displayWorld();
+					try{
+						Thread.sleep(RUNWAIT);
+					} catch(InterruptedException e){} 
+				}
+			});
+			runner.setDaemon(true);
+			runner.start();
+		});
+
+		runEnd.setOnAction(actionEvent ->{
+			running = false;
+			for(Node e : uiElements){
+				e.setDisable(false);
+			}
+		});
+		grid.add(runSteps, 0, 2);
+		grid.add(runStart, 1, 2);
+		grid.add(runEnd, 2, 2);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Critters");
+
+        GridPane input = new GridPane();
+		world = new GridPane();
+		out = new Text();
+        input.setPadding(new Insets(10, 10, 10, 10));
+        input.setHgap(5);
+        input.setVgap(5);
+
+        addButtons(input);
+
+		BorderPane mainScreen = new BorderPane();
+
+		mainScreen.setLeft(input);
+		mainScreen.setCenter(world);
+		mainScreen.setBottom(out);
+        mainScreen.setPadding(new Insets(10, 10, 10, 10));
+
+        primaryStage.setScene(new Scene(mainScreen, 1000, 1000));
+        primaryStage.show();
+
+		errorProcessing();
+    }
+
+    private static void errorProcessing(){
+		out.setText("Error processing previous command");
+    }
+
+    public static void main(String[] args){
+        launch(args);
     }
 
 }

@@ -13,6 +13,7 @@ package assignment5; // cannot be in default package
 import java.io.IOException;
 import java.util.*;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -46,6 +47,7 @@ import java.net.URL;
 public class Main extends Application{
     private static String myPackage;    // package of Critter file.  Critter cannot be in default pkg.
     private static boolean running = false;
+	private static boolean display = false;
     private static final long RUNWAIT = 1000;
 
     public static GridPane world;
@@ -246,7 +248,8 @@ public class Main extends Application{
         Button runEnd = new Button("stop");
         Slider runSteps = new Slider(1, 30, 1);
         uiElements.add(runStart);
-        
+		uiElements.add(runSteps);
+
         runStart.setOnAction(actionEvent ->{
             for(Node e : uiElements){
                 e.setDisable(true);
@@ -258,14 +261,15 @@ public class Main extends Application{
                     for(int i = 0; i < stepCount; i++){
                         Critter.worldTimeStep();
                     }
-                    Critter.displayWorld();
+                    //Critter.displayWorld();
+					Platform.runLater(() -> {Critter.displayWorld();});
                     try{
                         Thread.sleep(RUNWAIT);
                     } catch(InterruptedException e){} 
                 }
-            });
-            runner.setDaemon(true);
-            runner.start();
+				});
+				runner.setDaemon(true);
+				runner.start();
         });
 
         runEnd.setOnAction(actionEvent ->{

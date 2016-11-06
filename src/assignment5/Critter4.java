@@ -94,4 +94,6 @@ public class Critter4 extends Critter {
 		Main.setOutputText(outText);
     }
 
+    public CritterShape viewShape() { return CritterShape.DIAMOND; }
+
 }

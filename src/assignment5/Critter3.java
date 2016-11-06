@@ -127,6 +127,7 @@ public class Critter3 extends Critter{
 
 		Main.setOutputText(outText);
     }
-    
+
+    public CritterShape viewShape() { return CritterShape.DIAMOND; }
 
 }

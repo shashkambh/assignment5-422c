@@ -123,6 +123,6 @@ public class Critter2 extends Critter{
 
 		Main.setOutputText(outText);
     }
-    
 
+    public CritterShape viewShape() { return CritterShape.DIAMOND; }
 }

@@ -144,4 +144,6 @@ public class Critter1 extends Critter{
 
     }
 
+    public CritterShape viewShape() { return CritterShape.DIAMOND; }
+
 }

@@ -72,4 +72,6 @@ public class Craig extends Critter {
 		outText += ("" + total_left / (GENE_TOTAL * 0.01 * craigs.size()) + "% left   ");
 		Main.setOutputText(outText);
 	}
+
+	public CritterShape viewShape() { return CritterShape.DIAMOND; }
 }

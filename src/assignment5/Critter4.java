@@ -10,6 +10,8 @@
  */
 package assignment5;
 
+import javafx.scene.paint.Color;
+
 import java.util.TreeSet;
 
 /**
@@ -94,6 +96,7 @@ public class Critter4 extends Critter {
 		Main.setOutputText(outText);
     }
 
-    public CritterShape viewShape() { return CritterShape.DIAMOND; }
+    public CritterShape viewShape() { return CritterShape.TRIANGLE; }
+    public Color viewFillColor() { return Color.BLUE; }
 
 }

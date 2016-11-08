@@ -11,6 +11,8 @@
  */
 package assignment5; // cannot be in default package
 import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -21,15 +23,14 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.Node;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,12 +74,12 @@ public class Main extends Application{
         return textField;
     }
 
-    private static List<String> getCritterList(){
+    private static List<String> getCritterList() {
         String name = Critter.class.getSimpleName();
         name += ".class";
 
         URL file = Critter.class.getResource(name);
-        String dir= file.getPath();
+        String dir = file.getPath();
         dir = dir.substring(0, dir.lastIndexOf("/"));
 
         File current = new File(dir);
@@ -88,8 +89,9 @@ public class Main extends Application{
         
         for(File e : list){
             String className = e.getName();
-            if(className.endsWith(".java")){
-                className = className.substring(0, className.length() - 5);
+            if(className.endsWith(".class")){
+
+                className = className.substring(0, className.length() - 6);
 
                 try{
                     Class<? extends Critter> critterClass = Class.forName(myPackage + "." + className).asSubclass(Critter.class);
@@ -104,7 +106,7 @@ public class Main extends Application{
         }
 
         Collections.sort(critters);
-        
+
         return critters;
 
     }
@@ -293,6 +295,25 @@ public class Main extends Application{
         input.setPadding(new Insets(10, 10, 10, 10));
         input.setHgap(5);
         input.setVgap(5);
+
+        ColumnConstraints[] weights = new ColumnConstraints[Params.world_width];
+        for(int i = 0; i < Params.world_width; i++) {
+            weights[i] = new ColumnConstraints();
+            weights[i].setPercentWidth(1);
+        }
+        world.getColumnConstraints().addAll(weights);
+        RowConstraints[] weightsR = new RowConstraints[Params.world_width];
+        for(int i = 0; i < Params.world_width; i++) {
+            weightsR[i] = new RowConstraints();
+            weightsR[i].setPercentHeight(1);
+        }
+        world.getRowConstraints().addAll(weightsR);
+        for(int i = 0; i < Params.world_height; i++) {
+            for(int j = 0; j < Params.world_width; j++) {
+                world.add(new Rectangle(world.getColumnConstraints().get(0).getMaxWidth(),
+                        world.getRowConstraints().get(0).getMaxHeight(), Color.WHITE), i, j);
+            }
+        }
 
         addButtons(input);
 

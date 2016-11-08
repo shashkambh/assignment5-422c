@@ -10,6 +10,8 @@
  */
 package assignment5;
 
+import javafx.scene.paint.Color;
+
 import java.util.*;
 
 /**
@@ -144,6 +146,7 @@ public class Critter1 extends Critter{
 
     }
 
-    public CritterShape viewShape() { return CritterShape.DIAMOND; }
+    public CritterShape viewShape() { return CritterShape.STAR; }
+    public Color viewFillColor() { return Color.BROWN; }
 
 }

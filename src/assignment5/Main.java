@@ -39,17 +39,13 @@ import java.io.File;
 import java.util.Collections;
 import java.net.URL;
 
-
-/*
- * Usage: java <pkgname>.Main <input file> test
- * input file is optional.  If input file is specified, the word 'test' is optional.
- * May not use 'test' argument without specifying input file.
- */
 public class Main extends Application{
     private static String myPackage;    // package of Critter file.  Critter cannot be in default pkg.
     private static boolean running = false;
 	private static boolean display = false;
     private static final long RUNWAIT = 1000;
+	public static final int SCREENHEIGHT = 700;
+	public static final int SCREENWIDTH = 1200;
 
     public static GridPane world;
     public static Text out;
@@ -65,9 +61,9 @@ public class Main extends Application{
 
     private static TextField numericTextField(){
         TextField textField = new TextField();
-        textField.textProperty().addListener( (observable, oldValue, newValue) ->{
-            if(!newValue.matches("\\d*")){
-                textField.setText(newValue.replaceAll("[^\\d]", ""));
+        textField.textProperty().addListener( (observable, oldVal, newVal) ->{
+            if(!newVal.matches("\\d*")){
+                textField.setText(newVal.replaceAll("[^\\d]", ""));
             }
         });
 
@@ -296,7 +292,7 @@ public class Main extends Application{
         input.setHgap(5);
         input.setVgap(5);
 
-        ColumnConstraints[] weights = new ColumnConstraints[Params.world_width];
+        /*ColumnConstraints[] weights = new ColumnConstraints[Params.world_width];
         for(int i = 0; i < Params.world_width; i++) {
             weights[i] = new ColumnConstraints();
             weights[i].setPercentWidth(1);
@@ -313,19 +309,23 @@ public class Main extends Application{
                 world.add(new Rectangle(world.getColumnConstraints().get(0).getMaxWidth(),
                         world.getRowConstraints().get(0).getMaxHeight(), Color.WHITE), i, j);
             }
-        }
+			}*/
 
         addButtons(input);
+
 
         BorderPane mainScreen = new BorderPane();
 
         mainScreen.setLeft(input);
         mainScreen.setCenter(world);
-        mainScreen.setBottom(out);
+		mainScreen.setBottom(out);
         mainScreen.setPadding(new Insets(10, 10, 10, 10));
 
-        primaryStage.setScene(new Scene(mainScreen, 1000, 1000));
+        primaryStage.setScene(new Scene(mainScreen, SCREENWIDTH, SCREENHEIGHT));
+		Critter.displayWorld();
         primaryStage.show();
+
+		errorProcessing();
     }
 
     private static void errorProcessing(){

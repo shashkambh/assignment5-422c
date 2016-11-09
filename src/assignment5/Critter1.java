@@ -1,4 +1,4 @@
-/* EE422C Project 4 submission by
+/* EE422C Project 5 submission by
  * Shashank Kambhampati
  * skk834
  * 16445
@@ -61,7 +61,9 @@ public class Critter1 extends Critter{
         } else {
             if(running || Critter.getRandomInt(2 + numFights / 2) != 0){
                 willFight = true;
-            } else {
+            } else if(look(2, false) == null){
+				walk(2);
+		    }else {
                 walk(Critter.getRandomInt(8));
             }
         }

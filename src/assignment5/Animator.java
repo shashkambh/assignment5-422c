@@ -1,4 +1,4 @@
-/* CRITTERS Main.java
+/* CRITTERS Animator.java
  * EE422C Project 5 submission by
  * Shashank Kambhampati
  * skk834

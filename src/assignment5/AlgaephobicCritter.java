@@ -1,7 +1,15 @@
+/* CRITTERS AlgaephobicCritter.java
+ * EE422C Project 4 submission by
+ * Shashank Kambhampati
+ * skk834
+ * 16445
+ * Pranav Harathi
+ * sh44674
+ * 16460
+ * Slip days used: 0
+ * Fall 2016
+ */
 package assignment5;
-
-//import project5.Critter.CritterShape;
-
 public class AlgaephobicCritter extends Critter {
 
 	@Override

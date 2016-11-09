@@ -175,6 +175,11 @@ public abstract class Critter {
 	
 	private int oldx_coord;
 	private int oldy_coord;
+	/**
+	 * Returns the string representation of the critter at a given location
+	 * @param direction The direction to look
+	 * @param steps Whether to look one step away(false) or two steps away(true)
+	 */
 	protected String look(int direction, boolean steps){
 		int x = nextx(direction, steps ? 2 : 1);
 		int y = nexty(direction, steps ? 2 : 1);

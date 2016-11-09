@@ -1,3 +1,14 @@
+/* CRITTERS Algae.java
+ * EE422C Project 5 submission by
+ * Shashank Kambhampati
+ * skk834
+ * 16445
+ * Pranav Harathi
+ * sh44674
+ * 16460
+ * Slip days used: 0
+ * Fall 2016
+ */
 package assignment5;
 /*
  * Do not change this file.

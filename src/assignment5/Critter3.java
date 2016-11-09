@@ -10,6 +10,8 @@
  */
 package assignment5;
 
+import javafx.scene.paint.Color;
+
 /**
  * Aliens have invaded the world of Critters. They want to abduct and study Earthlings
  * to prepare for their invasion. There are a lot of them on their spaceship (you
@@ -129,5 +131,6 @@ public class Critter3 extends Critter{
     }
 
     public CritterShape viewShape() { return CritterShape.DIAMOND; }
-
+    public Color viewFillColor() { return Color.GREEN; }
+    public Color viewOutlineColor() { return Color.BROWN; }
 }

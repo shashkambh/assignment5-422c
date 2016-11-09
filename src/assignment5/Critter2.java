@@ -11,6 +11,7 @@
 package assignment5;
 
 
+import javafx.scene.paint.*;
 import java.util.ArrayList;
 
 /**
@@ -125,4 +126,7 @@ public class Critter2 extends Critter{
     }
 
     public CritterShape viewShape() { return CritterShape.DIAMOND; }
+    public Color viewFillColor() { return Color.YELLOW; }
+    public Color viewOutlineColor() { return Color.AZURE; }
+
 }

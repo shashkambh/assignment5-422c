@@ -1,5 +1,7 @@
 package assignment5;
 
+import javafx.scene.paint.Color;
+
 /*
  * Example critter
  */
@@ -73,5 +75,6 @@ public class Craig extends Critter {
 		Main.setOutputText(outText);
 	}
 
-	public CritterShape viewShape() { return CritterShape.DIAMOND; }
+	public CritterShape viewShape() { return CritterShape.TRIANGLE; }
+    public Color viewFillColor() { return Color.PURPLE; }
 }

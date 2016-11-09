@@ -26,11 +26,11 @@ import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class Main extends Application{
 	public static final int SCREENWIDTH = 1200;
 
     public static GridPane world;
-    public static Text out;
+    public static TextArea out;
 
     // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
     static {
@@ -56,8 +56,24 @@ public class Main extends Application{
     }
 
     public static void setOutputText(String outText){
-        out.setText(outText);
+        out.appendText(outText + "\n");
     }
+
+	private static void stats(String critterName){
+		try{
+			java.util.List<Critter> statList = Critter.getInstances(critterName);
+
+			Class<?>[] params = {List.class};
+
+
+			Class<? extends Critter> stats = Class.forName(myPackage + "." + critterName)
+					.asSubclass(Critter.class);
+
+			stats.getMethod("runStats", params).invoke(null, statList);
+		} catch(Exception e){
+			setOutputText("Error processing previous command");
+		}
+	}
 
     private static TextField numericTextField(){
         TextField textField = new TextField();
@@ -180,7 +196,7 @@ public class Main extends Application{
                     Critter.makeCritter(makeText.getValue());
                 }
             } catch(InvalidCritterException e){
-                errorProcessing();
+				setOutputText("Error processing previous command");
             }
             Critter.displayWorld();
             makeNumber.clear();
@@ -201,19 +217,7 @@ public class Main extends Application{
 		statsText.setValue("Algae");
 
         EventHandler<ActionEvent> statsEvent = actionEvent -> {
-            try{
-                java.util.List<Critter> statList = Critter.getInstances(statsText.getValue());
-
-                Class<?>[] params = {List.class};
-
-
-                Class<? extends Critter> stats = Class.forName(myPackage + "." + statsText.getValue())
-                        .asSubclass(Critter.class);
-
-                stats.getMethod("runStats", params).invoke(null, statList);
-            } catch(Exception e){
-                errorProcessing();
-            }
+			stats(statsText.getValue());
         };
         statsButton.setOnAction(statsEvent);
         grid.add(statsText, 0, 4);
@@ -259,7 +263,6 @@ public class Main extends Application{
                     for(int i = 0; i < stepCount; i++){
                         Critter.worldTimeStep();
                     }
-                    //Critter.displayWorld();
 					Platform.runLater(() -> {Critter.displayWorld();});
                     try{
                         Thread.sleep(RUNWAIT);
@@ -287,7 +290,11 @@ public class Main extends Application{
 
         GridPane input = new GridPane();
         world = new GridPane();
-        out = new Text();
+		out = new TextArea();
+		out.setEditable(false);
+		out.setPrefHeight(80);
+		out.setMaxHeight(80);
+		out.setMinHeight(80);
         input.setPadding(new Insets(10, 10, 10, 10));
         input.setHgap(5);
         input.setVgap(5);
@@ -324,12 +331,6 @@ public class Main extends Application{
         primaryStage.setScene(new Scene(mainScreen, SCREENWIDTH, SCREENHEIGHT));
 		Critter.displayWorld();
         primaryStage.show();
-
-		errorProcessing();
-    }
-
-    private static void errorProcessing(){
-        out.setText("Error processing previous command");
     }
 
     public static void main(String[] args){

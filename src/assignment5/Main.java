@@ -29,8 +29,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.CheckBox;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,13 +50,17 @@ public class Main extends Application{
 	public static final int SCREENWIDTH = 1200;
 
     public static GridPane world;
-    public static TextArea out;
+    private static TextArea out;
 
     // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
     static {
         myPackage = Critter.class.getPackage().toString().split(" ")[1];
     }
 
+	/**
+	 * Appends the given text to the output on screen.
+	 * @pram outText the text to append
+	 */
     public static void setOutputText(String outText){
         out.appendText(outText + "\n");
     }
@@ -123,8 +129,20 @@ public class Main extends Application{
 
     }
 
-    private void addButtons(GridPane grid){
+    private static void addButtons(GridPane grid){
         List<String> critters = getCritterList();
+
+		// checkboxes
+		int start = 7;
+		grid.add(new Label("During animation, run stats on:"),0, start);
+		start++;
+		ArrayList<CheckBox> animateStats = new ArrayList<CheckBox>();
+		for(String critterName : critters){
+			CheckBox toAdd = new CheckBox(critterName);
+			animateStats.add(toAdd);
+			grid.add(toAdd, 0, start);
+			start++;
+		}
         
         // seed ui elements
         TextField seedText = numericTextField();
@@ -234,6 +252,7 @@ public class Main extends Application{
 
 
         List<Node> uiElements = new ArrayList<>();
+		uiElements.addAll(animateStats);
         uiElements.add(quitButton);
         uiElements.add(statsButton);
         uiElements.add(stepButton);
@@ -263,7 +282,12 @@ public class Main extends Application{
                     for(int i = 0; i < stepCount; i++){
                         Critter.worldTimeStep();
                     }
-					Platform.runLater(() -> {Critter.displayWorld();});
+					Platform.runLater(() -> {
+							Critter.displayWorld();
+							for(CheckBox box : animateStats){
+								if(box.isSelected()) stats(box.getText());
+							}
+						});
                     try{
                         Thread.sleep(RUNWAIT);
                     } catch(InterruptedException e){} 
@@ -282,9 +306,14 @@ public class Main extends Application{
         grid.add(runSteps, 0, 2);
         grid.add(runStart, 1, 2);
         grid.add(runEnd, 2, 2);
+
     }
 
     @Override
+	/**
+	 * Starts the JavaFX project.
+	 * @param primaryStage The stage to display on
+	 */
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Critters");
 
@@ -298,25 +327,6 @@ public class Main extends Application{
         input.setPadding(new Insets(10, 10, 10, 10));
         input.setHgap(5);
         input.setVgap(5);
-
-        /*ColumnConstraints[] weights = new ColumnConstraints[Params.world_width];
-        for(int i = 0; i < Params.world_width; i++) {
-            weights[i] = new ColumnConstraints();
-            weights[i].setPercentWidth(1);
-        }
-        world.getColumnConstraints().addAll(weights);
-        RowConstraints[] weightsR = new RowConstraints[Params.world_width];
-        for(int i = 0; i < Params.world_width; i++) {
-            weightsR[i] = new RowConstraints();
-            weightsR[i].setPercentHeight(1);
-        }
-        world.getRowConstraints().addAll(weightsR);
-        for(int i = 0; i < Params.world_height; i++) {
-            for(int j = 0; j < Params.world_width; j++) {
-                world.add(new Rectangle(world.getColumnConstraints().get(0).getMaxWidth(),
-                        world.getRowConstraints().get(0).getMaxHeight(), Color.WHITE), i, j);
-            }
-			}*/
 
         addButtons(input);
 

@@ -174,6 +174,11 @@ public abstract class Critter {
 	
 	private int oldx_coord;
 	private int oldy_coord;
+	/**
+	 * Returns the string representation of the critter at a given location
+	 * @param direction The direction to look
+	 * @param steps Whether to look one step away(false) or two steps away(true)
+	 */
 	protected String look(int direction, boolean steps){
 		int x = nextx(direction, steps ? 2 : 1);
 		int y = nexty(direction, steps ? 2 : 1);
@@ -485,41 +490,10 @@ public abstract class Critter {
 	 * Prints a string grid of the world to standard output.
 	 */
     public static void displayWorld() {
-        String[][] grid = new String[Params.world_height][Params.world_width];
         Critter[][] gridMoreInfo = new Critter[Params.world_height][Params.world_width];
         
         for(Critter c : population) {
-            grid[c.y_coord][c.x_coord] = c.toString();
             gridMoreInfo[c.y_coord][c.x_coord] = c;
-        }
-        // print grid
-        for(int r = 0; r < grid.length + 2; r++) {
-            for(int c = 0; c < grid[0].length + 2; c++) {
-                
-                if(c == 0) {
-                    if(r == 0 || r == grid.length + 1) System.out.print("+");
-                    else System.out.print("|");
-                    continue;
-                } else if(c == grid[0].length + 1) {
-                    if(r == 0 || r == grid.length + 1) System.out.print("+");
-                    else System.out.print("|");
-                    continue;
-                } else {
-                    if(r == 0 || r == grid.length + 1) {
-                        System.out.print("-");
-                        continue;
-                    } else {
-                        if(grid[r - 1][c - 1] == null) {
-                            System.out.print(" ");
-                        } else {
-                            System.out.print(grid[r - 1][c - 1]);
-                        }
-                    }
-                }
-
-                
-            }
-            System.out.println();
         }
         Animator.draw(gridMoreInfo);
     }

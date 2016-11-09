@@ -1,4 +1,4 @@
-/* EE422C Project 4 submission by
+/* EE422C Project 5 submission by
  * Shashank Kambhampati
  * skk834
  * 16445
@@ -60,19 +60,23 @@ public class Critter4 extends Critter {
      * Performs one timestep for the Cow
      */
     public void doTimeStep(){
-        walk(direction);
-        pathCtr++;
-        if(pathCtr > pathLength) pathCtr = 0;
-        if((pathCtr / patternSize) == 0) {
-            direction = 0;
-        } else if((pathCtr / patternSize) == 1) {
-            direction = 6;
-        } else if((pathCtr / patternSize) == 2) {
-            direction = 4;
-        } else if((pathCtr / patternSize) == 3) {
+		if(look(2, false).equals("@")){
+			walk(2);
+		} else {
+			walk(direction);
+			pathCtr++;
+			if(pathCtr > pathLength) pathCtr = 0;
+			if((pathCtr / patternSize) == 0) {
+				direction = 0;
+			} else if((pathCtr / patternSize) == 1) {
+				direction = 6;
+			} else if((pathCtr / patternSize) == 2) {
+				direction = 4;
+			} else if((pathCtr / patternSize) == 3) {
             direction = 2;
-        }
-        System.out.println(direction);
+			}
+			System.out.println(direction);
+		}
     }
 
 

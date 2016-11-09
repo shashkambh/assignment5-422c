@@ -1,4 +1,4 @@
-/* EE422C Project 4 submission by
+/* EE422C Project 5 submission by
  * Shashank Kambhampati
  * skk834
  * 16445

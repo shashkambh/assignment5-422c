@@ -1,4 +1,4 @@
-/* CRITTERS Main.java
+/* CRITTERS Animator.java
  * EE422C Project 5 submission by
  * Shashank Kambhampati
  * skk834
@@ -19,8 +19,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
 public class Animator {
-
-    // Right now, everything has a 5x5 box
     public static void draw(Critter[][] critters) {
 		int width = Main.SCREENWIDTH - 400;
 		int height = Main.SCREENHEIGHT - 100 - Params.world_width * 2;
